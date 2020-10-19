@@ -23,7 +23,7 @@ class KingkongLiveCheck : LiveCheck
     {
         try
         {
-            return Encoding.UTF8.GetString(HttpWebClient.Get("https://api-kk.lv-play.com/webapi/v1/search/global?keyword=" + room));
+            return Encoding.UTF8.GetString(HttpWebClient.Get("https://game-api.lang.live/webapi/v1/room/info?room_id=" + room));
         }
         catch (Exception)
         {
@@ -36,10 +36,8 @@ class KingkongLiveCheck : LiveCheck
     {
         KingkongData data = getJson(room);
         if (data == null) return "";
-        foreach (KingkongUser user in data.users)
-        {
-            if (user.room_id == room) return user.nickname;
-        }
+        KingkongUser user = data.live_info;
+        if (user.room_id == room) return user.nickname;
         return "";
     }
 
@@ -48,13 +46,11 @@ class KingkongLiveCheck : LiveCheck
     {
         KingkongData dataTemp = getJson(room);
         if (dataTemp == null) return (int)LivingStatus.ERROR;
-        foreach (KingkongUser user in dataTemp.users)
+        KingkongUser user = dataTemp.live_info;
+        if (user.room_id == room)
         {
-            if (user.room_id == room)
-            {
-                userTemp = user;
-                return user.live_status;
-            }
+            userTemp = user;
+            return user.live_status;
         }
         return (int)LivingStatus.ERROR;
     }
@@ -100,7 +96,7 @@ class KingkongLiveCheck : LiveCheck
 
     protected class KingkongData
     {
-        public List<KingkongUser> users { get; set; }
+        public KingkongUser live_info { get; set; }
     }
 
     protected class KingkongUser
